@@ -14,7 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTSettings"));
-builder.Services.Configure<DbConnectionStringBuilder>(builder.Configuration.GetSection("DefaultConnection"));
 
 // секретные фразы, которые знает только сервер
 var secretKey = builder.Configuration.GetSection("JWTSettings:SecretKey").Value;
@@ -78,11 +77,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDbContext<DataContext>(options =>
-{
-    options.UseNpgsql(builder.Configuration.GetSection("DefaultConnection").Value, 
-                        assembly => assembly.MigrationsAssembly("SocialCRM"));
-});
 
 var app = builder.Build();
 
