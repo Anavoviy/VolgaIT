@@ -1,6 +1,6 @@
-﻿namespace VolgaIT.Model
+﻿namespace VolgaIT.Model.Entities
 {
-    public class User
+    public class UserEntity : BaseEntity
     {
         public string Username { get; set; }
         public string Password { get; set; }

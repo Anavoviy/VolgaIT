@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Data.Common;
 using System.Text;
 using VolgaIT;
+using VolgaIT.EntityDB;
 using VolgaIT.OtherClasses;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTSettings"));
+builder.Services.Configure<DbConnectionStringBuilder>(builder.Configuration.GetSection("DefaultConnection"));
 
 // секретные фразы, которые знает только сервер
 var secretKey = builder.Configuration.GetSection("JWTSettings:SecretKey").Value;
@@ -73,14 +78,20 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddDbContext<DataContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetSection("DefaultConnection").Value, 
+                        assembly => assembly.MigrationsAssembly("SocialCRM"));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 app.UseHttpsRedirection();
 
