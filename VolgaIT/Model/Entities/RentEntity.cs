@@ -4,13 +4,16 @@
     {
 
         public long TransportId { get; set; }
-        public long UserId { get; set; }
+        public virtual Transport Transport { get; set; }
 
-        public string TimeStart { get; set; } // в ISO 8601
-        public string? TimeEnd { get; set; } // в ISO 8601
+        public long UserId { get; set; }
+        public virtual User User { get; set; }
+
+        public string TimeStart { get; set; } = string.Empty; // в ISO 8601
+        public string? TimeEnd { get; set; } = string.Empty; // в ISO 8601
 
         public double PriceOfUnit { get; set; }
-        public string PriceType { get; set; }
+        public string PriceType { get; set; } = string.Empty;
         public double? FinalPrice { get; set; }
 
     }

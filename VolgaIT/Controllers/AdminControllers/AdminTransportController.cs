@@ -7,7 +7,7 @@ namespace VolgaIT.Controllers.AdminControllers
 {
     [Route("api/Admin/Transport")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminTransportController : ControllerBase
     {
         [HttpGet]

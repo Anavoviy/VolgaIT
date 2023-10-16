@@ -7,7 +7,7 @@ namespace VolgaIT.Controllers.AdminControllers
 {
     [Route("api/Admin")]
     [ApiController]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminRentController : ControllerBase
     {
 
