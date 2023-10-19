@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VolgaIT.Model;
+using VolgaIT.Model.Model;
+using VolgaIT.Model.ModelNoId;
 
 namespace VolgaIT.Controllers.AdminControllers
 {
@@ -24,7 +25,7 @@ namespace VolgaIT.Controllers.AdminControllers
         }
 
         [HttpGet("TransportHistory/{transportId}")]
-        public ActionResult<List<Transport>> GetTransportById(long transportId)
+        public ActionResult<List<TransportNoId>> GetTransportById(long transportId)
         {
             return Ok();
         }

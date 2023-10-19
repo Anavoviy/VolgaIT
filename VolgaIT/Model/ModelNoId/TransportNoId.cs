@@ -1,12 +1,8 @@
-﻿using VolgaIT.Model.Model;
-
-namespace VolgaIT.Model.Entities
+﻿namespace VolgaIT.Model.ModelNoId
 {
-    public class TransportEntity : BaseEntity
+    public class TransportNoId
     {
-
         public long OwnerId { get; set; }
-        public virtual User Owner { get; set; }
 
         public bool CanBeRented { get; set; }
         public string TransportType { get; set; } = string.Empty;
@@ -21,6 +17,5 @@ namespace VolgaIT.Model.Entities
 
         public double MinutePrice { get; set; }
         public double DayPrice { get; set; }
-
     }
 }

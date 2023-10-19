@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VolgaIT.Model;
+using VolgaIT.Model.Model;
+using VolgaIT.Model.ModelNoId;
 
 namespace VolgaIT.Controllers.AdminControllers
 {
@@ -11,19 +12,19 @@ namespace VolgaIT.Controllers.AdminControllers
     public class AdminTransportController : ControllerBase
     {
         [HttpGet]
-        public ActionResult<List<Transport>> GetAllTransport()
+        public ActionResult<List<TransportNoId>> GetAllTransport()
         {
             return Ok();
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Transport> GetTransport(long id) 
+        public ActionResult<TransportNoId> GetTransport(long id) 
         {
             return Ok(id.ToString());
         }
 
         [HttpPost]
-        public ActionResult AddTransport(Transport transport)
+        public ActionResult AddTransport(TransportNoId transport)
         {
             return Ok();
         }

@@ -5,10 +5,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY VolgaIT.csproj VolgaIT.csproj
-RUN dotnet restore "VolgaIT.csproj"
+COPY ["VolgaIT/VolgaIT.csproj", "VolgaIT/"]
+RUN dotnet restore "VolgaIT/VolgaIT.csproj"
 COPY . .
-WORKDIR "/src"
+WORKDIR "/src/VolgaIT"
 RUN dotnet build "VolgaIT.csproj" -c Release -o /app/build
 
 FROM build AS publish

@@ -5,9 +5,10 @@ namespace VolgaIT.EntityDB
 {
     public class DataContext : DbContext
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options){}
-
-       
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        {
+            Database.EnsureCreated();
+        }
 
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<TransportEntity> Transports { get; set; }

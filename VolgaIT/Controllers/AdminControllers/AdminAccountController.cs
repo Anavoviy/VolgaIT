@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VolgaIT.Model;
+using VolgaIT.EntityDB;
+using VolgaIT.Model.Model;
+using VolgaIT.OtherClasses;
 
 namespace VolgaIT.Controllers.AdminControllers
 {
@@ -10,16 +12,24 @@ namespace VolgaIT.Controllers.AdminControllers
     [Authorize(Roles = "Admin")]
     public class AdminAccountController : ControllerBase
     {
+        private DataContext _context;
+
+        public AdminAccountController(DataContext context) => _context = context;
+
+
         [HttpGet]
         public ActionResult<List<User>> GetUsers()
         {
-            return Ok();
+            if(_context.Users == null)
+                return BadRequest(null);
+            else
+                return Ok(_context.Users.ToList());
         }
 
         [HttpGet("{id}")]
         public ActionResult<User> GetUserById(long id)
         {
-
+            User user = CEAM.UserEntityToModel(_context.Users.SingleOrDefault(u => u.Id == id));
             return Ok();
         }
 
@@ -28,12 +38,15 @@ namespace VolgaIT.Controllers.AdminControllers
         {
             if (user.Username == "")
                 ModelState.AddModelError("Username", "Нельзя создать пользователя с уже существующим username!");
-            
+
             if (!ModelState.IsValid)
                 return BadRequest();
-        
-            else 
+
+            else
+            {
+                _context.Users.Add(CEAM.UserModelToEntity(user));
                 return Ok();
+            }
         }
 
         [HttpPut("{id}")]
@@ -45,7 +58,11 @@ namespace VolgaIT.Controllers.AdminControllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            return Ok();
+            else
+            {
+                _context.Users.Update(CEAM.UserModelToEntity(user));
+                return Ok();
+            }
         }
 
         [HttpDelete("{id}")]
@@ -56,6 +73,8 @@ namespace VolgaIT.Controllers.AdminControllers
 
             if(!ModelState.IsValid)
                 return BadRequest();
+
+            _context.Users.Remove(_context.Users.FirstOrDefault(u => u.Id == id));
 
             return Ok();
         }

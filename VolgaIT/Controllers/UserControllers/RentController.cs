@@ -11,7 +11,7 @@ namespace VolgaIT.Controllers.UserControllers
     {
 
         [HttpGet("Transport")]
-        public ActionResult<string> GetTransports()
+        public ActionResult<string> GetTransports(double lat, double _long, double radius, string type)
         {
             return Ok();
         }
@@ -35,13 +35,13 @@ namespace VolgaIT.Controllers.UserControllers
         }
 
         [HttpPost("New/{transportId}")]
-        public ActionResult NewRentTransport(long transportId)
+        public ActionResult NewRentTransport(long transportId, string rentType)
         {
             return Ok();
         }
 
         [HttpPost("End/{rendtId}")]
-        public ActionResult EndRentTransport(long rentId)
+        public ActionResult EndRentTransport(long rentId, double lat, double _long)
         {
             return Ok();
         }
