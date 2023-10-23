@@ -6,10 +6,10 @@ namespace VolgaIT.Model.Entities
     {
 
         public long TransportId { get; set; }
-        public virtual Transport Transport { get; set; }
+        public virtual TransportEntity Transport { get; set; }
 
         public long UserId { get; set; }
-        public virtual User User { get; set; }
+        public virtual UserEntity User { get; set; }
 
         public string TimeStart { get; set; } = string.Empty; // в ISO 8601
         public string? TimeEnd { get; set; } = string.Empty; // в ISO 8601

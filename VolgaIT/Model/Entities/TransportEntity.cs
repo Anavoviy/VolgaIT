@@ -6,7 +6,7 @@ namespace VolgaIT.Model.Entities
     {
 
         public long OwnerId { get; set; }
-        public virtual User Owner { get; set; }
+        public virtual UserEntity Owner { get; set; }
 
         public bool CanBeRented { get; set; }
         public string TransportType { get; set; } = string.Empty;

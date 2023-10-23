@@ -22,9 +22,9 @@ namespace VolgaIT.Controllers.UserControllers
     {
         private readonly JWTSettings _options;
         private HttpContext _httpContext;
-        private DataContext _context;
+        private DataBaseContext _context;
 
-        public AccountController(IOptions<JWTSettings> optAccess, DataContext context)
+        public AccountController(IOptions<JWTSettings> optAccess, DataBaseContext context)
         {
             _options = optAccess.Value;
             _context = context;

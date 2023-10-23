@@ -3,9 +3,9 @@ using VolgaIT.Model.Entities;
 
 namespace VolgaIT.EntityDB
 {
-    public class DataContext : DbContext
+    public class DataBaseContext : DbContext
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options)
         {
             Database.EnsureCreated();
         }

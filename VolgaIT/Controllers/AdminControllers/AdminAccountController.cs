@@ -12,9 +12,9 @@ namespace VolgaIT.Controllers.AdminControllers
     [Authorize(Roles = "Admin")]
     public class AdminAccountController : ControllerBase
     {
-        private DataContext _context;
+        private DataBaseContext _context;
 
-        public AdminAccountController(DataContext context) => _context = context;
+        public AdminAccountController(DataBaseContext context) => _context = context;
 
 
         [HttpGet]
