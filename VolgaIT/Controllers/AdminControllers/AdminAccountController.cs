@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VolgaIT.EntityDB;
+using VolgaIT.Model.Entities;
 using VolgaIT.Model.Model;
 using VolgaIT.OtherClasses;
 
@@ -18,19 +19,37 @@ namespace VolgaIT.Controllers.AdminControllers
 
 
         [HttpGet]
-        public ActionResult<List<User>> GetUsers()
+        public ActionResult<List<User>> GetUsers(int start = 0, int count = 0)
         {
             if(_context.Users == null)
-                return BadRequest(null);
+                return BadRequest("Пользователей нет в базе данных!");
+
+            List<UserEntity> usersEntity = new List<UserEntity>();
+
+            if (count > 0)
+                usersEntity = _context.Users.Skip(start).Take(count).OrderBy(u => u.Id).ToList();
             else
-                return Ok(_context.Users.ToList());
+                usersEntity = _context.Users.Skip(start).ToList();
+
+            List<User> users = new List<User>();
+            foreach(UserEntity userEntity in usersEntity)
+                users.Add(Helper.ConvertTo<UserEntity, User>(userEntity, new UserEntity()));
+
+            return Ok(users);
         }
 
         [HttpGet("{id}")]
         public ActionResult<User> GetUserById(long id)
         {
-            User user = CEAM.UserEntityToModel(_context.Users.SingleOrDefault(u => u.Id == id));
-            return Ok();
+            if (id == 0)
+                return BadRequest("Идентификатор не может быть равен нулю (0)!");
+
+            User user = Helper.ConvertTo<UserEntity, User>(_context.Users.SingleOrDefault(u => u.Id == id), new UserEntity());
+
+            if (user == null)
+                return BadRequest("Пользователя с данными идентификатором не существует!");
+
+            return Ok(user);
         }
 
         [HttpPost]
@@ -44,7 +63,7 @@ namespace VolgaIT.Controllers.AdminControllers
 
             else
             {
-                _context.Users.Add(CEAM.UserModelToEntity(user));
+                _context.Users.Add(Helper.ConvertTo<User, UserEntity>(user, new User()));
                 return Ok();
             }
         }
@@ -60,7 +79,7 @@ namespace VolgaIT.Controllers.AdminControllers
 
             else
             {
-                _context.Users.Update(CEAM.UserModelToEntity(user));
+                _context.Users.Update(Helper.ConvertTo<User, UserEntity>(user, new User()));
                 return Ok();
             }
         }

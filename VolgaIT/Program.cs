@@ -16,12 +16,6 @@ using System.Net;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTSettings"));
 
-builder.Services.AddHttpsRedirection(options =>
-{
-    options.RedirectStatusCode = (int)HttpStatusCode.TemporaryRedirect;
-    options.HttpsPort = 80;
-});
-
 builder.Services.AddDataProtection().UseCryptographicAlgorithms(
     new AuthenticatedEncryptorConfiguration
     {
@@ -105,7 +99,6 @@ var app = builder.Build();
     
 //}
 
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

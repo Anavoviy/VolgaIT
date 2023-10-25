@@ -21,14 +21,12 @@ namespace VolgaIT.Controllers.UserControllers
     public class AccountController : ControllerBase
     {
         private readonly JWTSettings _options;
-        private HttpContext _httpContext;
         private DataBaseContext _context;
 
         public AccountController(IOptions<JWTSettings> optAccess, DataBaseContext context)
         {
             _options = optAccess.Value;
             _context = context;
-            _context.Database.EnsureCreated();
         }
 
 
@@ -36,51 +34,66 @@ namespace VolgaIT.Controllers.UserControllers
         [Authorize]
         public ActionResult<UserEntity> Me()
         {
-            return Ok();
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
+            long userId = HelperWithJWT.instance.UserId(headers);
+
+            UserEntity userEntity = _context.Users.FirstOrDefault(u => u.Id == userId);
+            
+            if (userEntity == null)
+                ModelState.AddModelError("User", "Ошибка при нахождении информации о вас");
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            return Ok(Helper.ConvertTo<UserEntity, UserNoId>(userEntity, new UserEntity()));
         }
 
         // получение jwt-token
         [HttpPost("SignIn")]
         public ActionResult<string> SignIn(UnicUser unicUser)
         {
-            try
-            {
-                User user = CEAM.UserEntityToModel(_context.Users.FirstOrDefault(u => u.Username == unicUser.Username && u.Password == unicUser.Password));
+            UserEntity user = null;
+            user = _context.Users.FirstOrDefault(u => u.Username == unicUser.Username && u.Password == unicUser.Password);
 
-                List<Claim> claims = new List<Claim>();
-                claims.Add(new Claim(ClaimValueTypes.Integer64, (102).ToString()));
-                claims.Add(new Claim(ClaimTypes.Name, unicUser.Username));
+            if (user == null)
+                ModelState.AddModelError("User", "Такого пользователя не существует!");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            List<Claim> claims = new List<Claim>();
+            claims.Add(new Claim(ClaimValueTypes.Integer64, (user.Id).ToString()));
+            if(user.IsAdmin)
                 claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            else
+                claims.Add(new Claim(ClaimTypes.Role, "User"));
 
-                var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
 
+            var jwt = new JwtSecurityToken(
+                            issuer: _options.Issuer,
+                            audience: _options.Audience,
+                            claims: claims,
+                            expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)),
+                            notBefore: DateTime.UtcNow,
+                            signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
+                            );
 
-                var jwt = new JwtSecurityToken(
-                                issuer: _options.Issuer,
-                                audience: _options.Audience,
-                                claims: claims,
-                                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)),
-                                notBefore: DateTime.UtcNow,
-                                signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
-                                );
-
-                return new JwtSecurityTokenHandler().WriteToken(jwt);
-            } catch (Exception ex)
-            {
-                return ex.Message;
-            }
+            return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
 
         [HttpPost("SignUp")]
         public ActionResult SignUp(UnicUser user)
         {
-            //if (_context.Users.FirstOrDefault(u => u.Username == user.Username) != null)
-            //    ModelState.AddModelError("Username", "Нельзя создать пользователя с существующим username!");
+            if (_context.Users.FirstOrDefault(u => u.Username == user.Username) != null)
+                ModelState.AddModelError("Username", "Нельзя создать пользователя с существующим username!");
 
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            _context.Users.Add(CEAM.UserModelToEntity(new User() { Username = user.Username, Password = user.Password }));
+            _context.Users.Add(new UserEntity() { Username = user.Username, Password = user.Password});
             _context.SaveChanges();
 
             return Ok();
@@ -90,30 +103,36 @@ namespace VolgaIT.Controllers.UserControllers
         [Authorize]
         public ActionResult<string> SignOut()
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            HelperWithJWT.instance.LogoutToken(headers);
+
             return Ok("Sign out success");
         }
 
         [HttpPut("Update")]
         [Authorize]
-        public ActionResult<string> Update(UnicUser dtoUser)
+        public ActionResult<string> Update(UnicUser unicUser)
         {
-            if (_context.Users.FirstOrDefault(u => u.Username == dtoUser.Username) != null)
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
+            long userId = HelperWithJWT.instance.UserId(headers);
+
+            if (_context.Users.FirstOrDefault(u => u.Id != userId && u.Username == unicUser.Username) != null)
                 ModelState.AddModelError("Username", "Нельзя использовать уже используемый в системе username!");
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            string headers =  this.HttpContext.Request.Headers.Authorization.ToString();
-            long userId = HelperWithJWT.UserId(headers);
-
             UserEntity user = _context.Users.FirstOrDefault(u => u.Id == userId);
-            user.Username = dtoUser.Username;
-            user.Password = dtoUser.Password;
+            user.Username = unicUser.Username;
+            user.Password = unicUser.Password;
 
             _context.Users.Update(user);
             _context.SaveChanges();
 
-            return Ok(userId.ToString());
+            return Ok("Ваши логин или/и пароль был(и) изменен(ы)!");
         }
     }
 }
