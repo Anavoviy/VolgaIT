@@ -13,7 +13,7 @@
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
-        public double MinutePrice { get; set; }
-        public double DayPrice { get; set; }
+        public double MinutePrice { get; set; } = 0;
+        public double DayPrice { get; set; } = 0;
     }
 }

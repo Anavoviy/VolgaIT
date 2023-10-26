@@ -41,59 +41,47 @@ namespace VolgaIT.Controllers.AdminControllers
         [HttpGet("{id}")]
         public ActionResult<User> GetUserById(long id)
         {
-            if (id == 0)
-                return BadRequest("Идентификатор не может быть равен нулю (0)!");
+            if (id == 0 || _context.Users.FirstOrDefault(u => u.Id == id) == null)
+                ModelState.AddModelError("Id", "Пользователя с таким идентификатором не существует в системе!");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             User user = Helper.ConvertTo<UserEntity, User>(_context.Users.SingleOrDefault(u => u.Id == id), new UserEntity());
-
-            if (user == null)
-                return BadRequest("Пользователя с данными идентификатором не существует!");
 
             return Ok(user);
         }
 
         [HttpPost]
-        public ActionResult AddUser(User user)
+        public ActionResult AddUser(UserNoId user)
         {
-            if (user.Username == "")
-                ModelState.AddModelError("Username", "Нельзя создать пользователя с уже существующим username!");
+            if (_context.Users.FirstOrDefault(u => u.Username == user.Username) != null)
+                return BadRequest("Нельзя создать пользователя с username уже существующим в системе");
 
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            else
-            {
-                _context.Users.Add(Helper.ConvertTo<User, UserEntity>(user, new User()));
-                return Ok();
-            }
+            _context.Users.Add(Helper.ConvertTo<UserNoId, UserEntity>(user, new UserNoId()));
+            _context.SaveChanges();
+            return Ok();
         }
 
         [HttpPut("{id}")]
-        public ActionResult EditUser(long id, User user) 
-        { 
-            if(user.Username == "")
-                ModelState.AddModelError("Username", "Нельзя создать пользователя с уже существующим username!");
+        public ActionResult EditUser(long id, UserNoId user) 
+        {
+            if (_context.Users.FirstOrDefault(u => u.Username == user.Username) != null)
+                return BadRequest("Нельзя изменять username пользователя на уже существующий в системе");
 
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            else
-            {
-                _context.Users.Update(Helper.ConvertTo<User, UserEntity>(user, new User()));
-                return Ok();
-            }
+           _context.Users.Update(Helper.ConvertTo<UserNoId, UserEntity>(user, new UserNoId()));
+           _context.SaveChanges();
+           return Ok();
         }
 
         [HttpDelete("{id}")]
         public ActionResult DeleteUser(long id)
         {
-            if (id == 0)
-                ModelState.AddModelError("Id", "Пользователя с таким идентификатором не существует в системе!");
-
-            if(!ModelState.IsValid)
-                return BadRequest();
+            if (id == 0 || _context.Users.FirstOrDefault(u => u.Id == id) == null)
+                return BadRequest("Пользователя с таким идентификатором не существует в системе!");
 
             _context.Users.Remove(_context.Users.FirstOrDefault(u => u.Id == id));
+            _context.SaveChanges();
 
             return Ok();
         }

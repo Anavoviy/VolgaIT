@@ -9,7 +9,7 @@ namespace VolgaIT.OtherClasses
 {
     public static class Helper
     {
-        public static T ConvertTo<V, T>(this object from, V classFrom)
+        public static T ConvertTo<V, T>(object from, V classFrom)
         {
             var typeFrom = typeof(V);
             var propsFrom = typeFrom.GetProperties();
@@ -25,8 +25,6 @@ namespace VolgaIT.OtherClasses
 
             return (T)result;
         }
-
-        
 
     }
 }
