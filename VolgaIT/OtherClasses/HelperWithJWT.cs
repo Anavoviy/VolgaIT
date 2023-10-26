@@ -28,6 +28,19 @@ namespace VolgaIT.OtherClasses
             return long.Parse(claim);
         }
 
+        public bool UserIsAdmin(string headers)
+        {
+            string token = headers.Split(' ')[1];
+
+            var helper = new JwtSecurityTokenHandler();
+            var jwt = helper.ReadToken(token);
+
+            var claim = (jwt as JwtSecurityToken).Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role).Value;
+
+
+            return claim.ToString() == "Admin";
+        }
+
         public void LogoutToken(string headers)
         {
             this.blackList.Add(headers.Split(' ')[1]);
