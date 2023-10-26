@@ -32,7 +32,7 @@ namespace VolgaIT.Controllers.UserControllers
 
         [HttpGet("Me")]
         [Authorize]
-        public ActionResult<UserEntity> Me()
+        public ActionResult<User> Me()
         {
             string headers = this.HttpContext.Request.Headers.Authorization.ToString();
             if (!HelperWithJWT.instance.TokenIsValid(headers))
@@ -47,7 +47,7 @@ namespace VolgaIT.Controllers.UserControllers
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            return Ok(Helper.ConvertTo<UserEntity, UserNoId>(userEntity, new UserEntity()));
+            return Ok(Helper.ConvertTo<UserEntity, User>(userEntity, new UserEntity()));
         }
 
         // получение jwt-token

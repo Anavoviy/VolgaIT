@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using VolgaIT.EntityDB;
 using VolgaIT.Model.Entities;
+using VolgaIT.Model.Model;
 using VolgaIT.Model.ModelNoId;
 using VolgaIT.Model.ModelUniqueDataTransfers;
 using VolgaIT.OtherClasses;
@@ -19,13 +20,17 @@ namespace VolgaIT.Controllers.UserControllers
         public TransportController(DataBaseContext context) => _context = context;
 
         [HttpGet("{id}")]
-        public ActionResult<TransportNoId> GetTransportById(long id)
+        public ActionResult<Transport> GetTransportById(long id)
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             TransportEntity transport = _context.Transports.FirstOrDefault(t => t.Id == id);
             if (transport == null)
                 return BadRequest("Не сущетсвует траспортного средства с данным идентификаторм!");
 
-            return Ok(Helper.ConvertTo<TransportEntity, TransportNoId>(transport, new TransportEntity()));
+            return Ok(Helper.ConvertTo<TransportEntity, Transport>(transport, new TransportEntity()));
         }
 
 
@@ -33,12 +38,15 @@ namespace VolgaIT.Controllers.UserControllers
         [Authorize]
         public ActionResult AddTransport(UnicTransport transport)
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             if (transport == null)
                 return BadRequest("Был передан транспорт, у которого не заполнены данные");
 
             TransportEntity transportEntity = Helper.ConvertTo<UnicTransport, TransportEntity>(transport, new UnicTransport());
             
-            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
             long userId = HelperWithJWT.instance.UserId(headers);
 
             transportEntity.OwnerId = userId;
@@ -53,6 +61,10 @@ namespace VolgaIT.Controllers.UserControllers
         [Authorize]
         public ActionResult UpdateTransport(long id, UnicTransport transport)
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             if (transport == null)
                 ModelState.AddModelError("Null", "Был передан транспорт, у которого не заполнены данные!");
             if (_context.Transports.FirstOrDefault(t => t.Id == id) == null)
@@ -61,7 +73,6 @@ namespace VolgaIT.Controllers.UserControllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
             long userId = HelperWithJWT.instance.UserId(headers);
 
             if (_context.Transports.FirstOrDefault(t => t.Id == id).OwnerId != userId)
@@ -92,6 +103,9 @@ namespace VolgaIT.Controllers.UserControllers
         public ActionResult DeleteTransport(long id)
         {
             string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             long userId = HelperWithJWT.instance.UserId(headers);
 
             if (_context.Transports.FirstOrDefault(t => t.Id == id) == null)

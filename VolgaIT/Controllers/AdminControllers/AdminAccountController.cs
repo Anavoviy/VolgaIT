@@ -21,7 +21,11 @@ namespace VolgaIT.Controllers.AdminControllers
         [HttpGet]
         public ActionResult<List<User>> GetUsers(int start = 0, int count = 0)
         {
-            if(_context.Users == null)
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
+            if (_context.Users == null)
                 return BadRequest("Пользователей нет в базе данных!");
 
             List<UserEntity> usersEntity = new List<UserEntity>();
@@ -41,6 +45,10 @@ namespace VolgaIT.Controllers.AdminControllers
         [HttpGet("{id}")]
         public ActionResult<User> GetUserById(long id)
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             if (id == 0 || _context.Users.FirstOrDefault(u => u.Id == id) == null)
                 ModelState.AddModelError("Id", "Пользователя с таким идентификатором не существует в системе!");
 
@@ -55,6 +63,10 @@ namespace VolgaIT.Controllers.AdminControllers
         [HttpPost]
         public ActionResult AddUser(UserNoId user)
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             if (_context.Users.FirstOrDefault(u => u.Username == user.Username) != null)
                 return BadRequest("Нельзя создать пользователя с username уже существующим в системе");
 
@@ -66,6 +78,10 @@ namespace VolgaIT.Controllers.AdminControllers
         [HttpPut("{id}")]
         public ActionResult EditUser(long id, UserNoId user) 
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             if (_context.Users.FirstOrDefault(u => u.Username == user.Username) != null)
                 return BadRequest("Нельзя изменять username пользователя на уже существующий в системе");
 
@@ -77,6 +93,10 @@ namespace VolgaIT.Controllers.AdminControllers
         [HttpDelete("{id}")]
         public ActionResult DeleteUser(long id)
         {
+            string headers = this.HttpContext.Request.Headers.Authorization.ToString();
+            if (!HelperWithJWT.instance.TokenIsValid(headers))
+                return Unauthorized("Авторизуйтесь!");
+
             if (id == 0 || _context.Users.FirstOrDefault(u => u.Id == id) == null)
                 return BadRequest("Пользователя с таким идентификатором не существует в системе!");
 
