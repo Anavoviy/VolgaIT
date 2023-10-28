@@ -9,7 +9,7 @@ namespace VolgaIT.EntityDB
         {
             Database.EnsureCreated();
 
-            if (Users.FirstOrDefault(u => u.Username == " admin") == null)
+            if (Users == null ||  Users.FirstOrDefault(u => u.Username == " admin") == null)
             {
                 Users.Add(new UserEntity() { IsAdmin = true, Balance = 0, Username = "admin", Password = "admin" });
                 SaveChanges();

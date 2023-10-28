@@ -50,8 +50,6 @@ namespace VolgaIT.Controllers.UserControllers
             if (!HelperWithJWT.instance.TokenIsValid(headers))
                 return Unauthorized("Авторизуйтесь!");
 
-            string headers = this.Request.Headers.Authorization.ToString();
-
             RentEntity rentEntity = _context.Rents.FirstOrDefault(r => r.Id == rentId);
 
             long userId = HelperWithJWT.instance.UserId(headers);
