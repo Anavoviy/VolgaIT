@@ -8,6 +8,12 @@ namespace VolgaIT.EntityDB
         public DataBaseContext(DbContextOptions<DataBaseContext> options) : base(options)
         {
             Database.EnsureCreated();
+
+            if (Users.FirstOrDefault(u => u.Username == " admin") == null)
+            {
+                Users.Add(new UserEntity() { IsAdmin = true, Balance = 0, Username = "admin", Password = "admin" });
+                SaveChanges();
+            }
         }
 
         public DbSet<UserEntity> Users { get; set; }

@@ -12,7 +12,7 @@ namespace VolgaIT.Model.Entities
         public virtual UserEntity User { get; set; }
 
         public string TimeStart { get; set; } = string.Empty; // в ISO 8601
-        public string? TimeEnd { get; set; } = string.Empty; // в ISO 8601
+        public string? TimeEnd { get; set; } // в ISO 8601
 
         public double PriceOfUnit { get; set; }
         public string PriceType { get; set; } = string.Empty;
